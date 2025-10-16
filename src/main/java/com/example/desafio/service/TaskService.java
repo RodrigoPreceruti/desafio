@@ -5,6 +5,8 @@ import com.example.desafio.dto.TaskEntityDTO;
 import com.example.desafio.dto.TaskUpdateDTO;
 import com.example.desafio.entity.Project;
 import com.example.desafio.entity.Task;
+import com.example.desafio.exception.custom.ProjectNotFoundException;
+import com.example.desafio.exception.custom.TaskNotFoundException;
 import com.example.desafio.mapper.TaskMapper;
 import com.example.desafio.repository.ProjectRepository;
 import com.example.desafio.repository.TaskRepository;
@@ -33,7 +35,7 @@ public class TaskService {
     public TaskEntityDTO createTask(TaskCreateDTO request) {
         Project project = this.projectRepository
                 .findById(request.projectId())
-                .orElseThrow();
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
 
         Task task = this.mapper.toEntity(request);
         task.setProject(project);
@@ -46,7 +48,7 @@ public class TaskService {
     public TaskEntityDTO updateTask(Long id, TaskUpdateDTO request) {
         Task task = this.repository
                 .findById(id)
-                .orElseThrow();
+                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
 
         task.setStatus(request.status());
 
@@ -58,7 +60,7 @@ public class TaskService {
     public void deleteTask(Long id) {
         Task task = this.repository
                 .findById(id)
-                .orElseThrow();
+                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
 
         this.repository.delete(task);
     }
