@@ -10,6 +10,8 @@ import com.example.desafio.exception.custom.TaskNotFoundException;
 import com.example.desafio.mapper.TaskMapper;
 import com.example.desafio.repository.ProjectRepository;
 import com.example.desafio.repository.TaskRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,10 +28,10 @@ public class TaskService {
         this.mapper = mapper;
     }
 
-    public List<TaskEntityDTO> getAll() {
-        List<Task> taskList = this.repository.findAll();
+    public Page<TaskEntityDTO> getAll(Pageable pageable) {
+        Page<Task> taskList = this.repository.findAll(pageable);
 
-        return this.mapper.toTaskDTOList(taskList);
+        return taskList.map(mapper::toResponseDTO);
     }
 
     public TaskEntityDTO createTask(TaskCreateDTO request) {

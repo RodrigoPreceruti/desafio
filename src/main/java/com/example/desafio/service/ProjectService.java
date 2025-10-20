@@ -5,9 +5,9 @@ import com.example.desafio.dto.ProjectEntityDTO;
 import com.example.desafio.entity.Project;
 import com.example.desafio.mapper.ProjectMapper;
 import com.example.desafio.repository.ProjectRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ProjectService {
@@ -19,10 +19,10 @@ public class ProjectService {
         this.mapper = mapper;
     }
 
-    public List<ProjectEntityDTO> getAll() {
-        List<Project> projectList = this.repository.findAll();
+    public Page<ProjectEntityDTO> getAll(Pageable pageable) {
+        Page<Project> projectList = this.repository.findAll(pageable);
 
-        return this.mapper.toListProjectDTO(projectList);
+        return projectList.map(mapper::toProjectDTO);
     }
 
     public ProjectEntityDTO createProject(ProjectCreateDTO request) {

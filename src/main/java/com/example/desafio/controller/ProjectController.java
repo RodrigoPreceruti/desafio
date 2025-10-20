@@ -4,11 +4,12 @@ import com.example.desafio.dto.ProjectCreateDTO;
 import com.example.desafio.dto.ProjectEntityDTO;
 import com.example.desafio.service.ProjectService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/projects")
@@ -20,8 +21,8 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectEntityDTO>> getAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(this.service.getAll());
+    public ResponseEntity<Page<ProjectEntityDTO>> getAll(@PageableDefault Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.service.getAll(pageable));
     }
 
     @PostMapping
