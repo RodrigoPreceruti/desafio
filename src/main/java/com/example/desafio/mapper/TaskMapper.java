@@ -6,8 +6,6 @@ import com.example.desafio.entity.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.List;
-
 @Mapper(componentModel = "spring")
 public interface TaskMapper {
     Task toEntity(TaskCreateDTO request);
@@ -18,6 +16,4 @@ public interface TaskMapper {
     @Mapping(target = "project.startDate", source = "project.startDate")
     @Mapping(target = "project.endDate", source = "project.endDate")
     TaskEntityDTO toResponseDTO(Task task);
-
-    List<TaskEntityDTO> toTaskDTOList(List<Task> taskList);
 }

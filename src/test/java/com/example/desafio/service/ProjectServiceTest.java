@@ -32,7 +32,7 @@ class ProjectServiceTest {
     private ProjectService service;
 
     @Test
-    void getAll() {
+    void shouldGetAll() {
         var pageable = PageRequest.of(0, 2);
 
         var project1 = Project.builder()
@@ -66,31 +66,31 @@ class ProjectServiceTest {
         var result = service.getAll(pageable);
 
         assertEquals(2, result.getTotalElements());
-        assertEquals("project 1 test", result.getContent().get(0).name());
-        assertEquals("project 2 test", result.getContent().get(1).name());
+        assertEquals(result.getContent().get(0).name(), project1.getName());
+        assertEquals(result.getContent().get(1).name(), project2.getName());
     }
 
     @Test
-    void createProject() {
-        var projectDTO = new ProjectCreateDTO("project test", "project description",
+    void shouldCreateProject() {
+        var projectCreateDTO = new ProjectCreateDTO("project test", "project description",
                 LocalDate.of(2025, 11, 1), LocalDate.of(2025, 11, 30));
 
         var projectEntity = Project.builder()
                 .id(1L)
-                .name(projectDTO.name())
-                .description(projectDTO.description())
-                .startDate(projectDTO.startDate())
-                .endDate(projectDTO.endDate())
+                .name(projectCreateDTO.name())
+                .description(projectCreateDTO.description())
+                .startDate(projectCreateDTO.startDate())
+                .endDate(projectCreateDTO.endDate())
                 .build();
 
         var projectResponse = new ProjectEntityDTO(projectEntity.getId(), projectEntity.getName(),
                 projectEntity.getDescription(), projectEntity.getStartDate(), projectEntity.getEndDate());
 
-        when(this.mapper.toEntity(projectDTO)).thenReturn(projectEntity);
+        when(this.mapper.toEntity(projectCreateDTO)).thenReturn(projectEntity);
         when(this.mapper.toProjectDTO(projectEntity)).thenReturn(projectResponse);
-        when(this.repository.save(any())).thenReturn(projectEntity);
+        when(this.repository.save(any(Project.class))).thenReturn(projectEntity);
 
-        var project = this.service.createProject(projectDTO);
+        var project = this.service.createProject(projectCreateDTO);
 
         assertEquals(projectResponse.id(), project.id());
         assertEquals(projectResponse.name(), project.name());
