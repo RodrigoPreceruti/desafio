@@ -12,6 +12,7 @@ import com.example.desafio.exception.custom.TaskNotFoundException;
 import com.example.desafio.mapper.TaskMapper;
 import com.example.desafio.repository.ProjectRepository;
 import com.example.desafio.repository.TaskRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,18 +45,36 @@ class TaskServiceTest {
     @InjectMocks
     private TaskService service;
 
+    private Project projectBuilder;
+
+    private Task taskBuilder;
+
+    @BeforeEach
+    public void setUp() {
+        projectBuilder = Project.builder()
+                .id(1L)
+                .name("project test")
+                .description("test description")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now())
+                .build();
+
+        taskBuilder = Task.builder()
+                .id(1L)
+                .title("test title")
+                .description("test description")
+                .status(StatusTask.TODO)
+                .priority(PriorityTask.LOW)
+                .dueDate(LocalDate.now())
+                .project(projectBuilder)
+                .build();
+    }
+
     @Test
     void shouldGetAll() {
         var pageable = PageRequest.of(0, 2);
 
-        var task = Task.builder()
-                .id(1L)
-                .title("CRUD")
-                .description("Description test")
-                .status(StatusTask.TODO)
-                .priority(PriorityTask.LOW)
-                .dueDate(LocalDate.now())
-                .build();
+        var task = taskBuilder;
 
         var taskResponse = new TaskEntityDTO(task.getId(), task.getTitle(), task.getDescription(), task.getStatus(),
                 task.getPriority(), task.getDueDate(), any());
@@ -77,23 +96,9 @@ class TaskServiceTest {
         var taskCreateDTO = new TaskCreateDTO("test title", "test description", StatusTask.TODO,
                 PriorityTask.LOW, LocalDate.now(), 1L);
 
-        var project = Project.builder()
-                .id(1L)
-                .name("project test")
-                .description("test description")
-                .startDate(LocalDate.now())
-                .endDate(LocalDate.now())
-                .build();
+        var project = projectBuilder;
 
-        var task = Task.builder()
-                .id(1L)
-                .title(taskCreateDTO.title())
-                .description(taskCreateDTO.description())
-                .status(taskCreateDTO.status())
-                .priority(taskCreateDTO.priority())
-                .dueDate(taskCreateDTO.dueDate())
-                .project(project)
-                .build();
+        var task = taskBuilder;
 
         var projectResponse = new ProjectEntityDTO(project.getId(), project.getName(), project.getDescription(),
                 project.getStartDate(), project.getEndDate());
@@ -117,14 +122,8 @@ class TaskServiceTest {
     void shouldUpdateTask() {
         var taskUpdateDTO = new TaskUpdateDTO(StatusTask.DONE);
 
-        var task = Task.builder()
-                .id(1L)
-                .title("task title")
-                .description("task description")
-                .status(taskUpdateDTO.status())
-                .priority(PriorityTask.LOW)
-                .dueDate(LocalDate.now())
-                .build();
+        var task = taskBuilder;
+        task.setStatus(taskUpdateDTO.status());
 
         var taskResponse = new TaskEntityDTO(task.getId(), task.getTitle(), task.getDescription(), task.getStatus(),
                 task.getPriority(), task.getDueDate(), any());
@@ -140,9 +139,7 @@ class TaskServiceTest {
 
     @Test
     void shouldDeleteTask() {
-        var task = Task.builder()
-                .id(1L)
-                .build();
+        var task = taskBuilder;
 
         when(this.repository.findById(1L)).thenReturn(Optional.of(task));
 

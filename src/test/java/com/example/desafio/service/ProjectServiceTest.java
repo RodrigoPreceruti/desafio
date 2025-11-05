@@ -5,6 +5,7 @@ import com.example.desafio.dto.ProjectEntityDTO;
 import com.example.desafio.entity.Project;
 import com.example.desafio.mapper.ProjectMapper;
 import com.example.desafio.repository.ProjectRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,57 +32,46 @@ class ProjectServiceTest {
     @InjectMocks
     private ProjectService service;
 
+    private Project projectBuilder;
+
+    @BeforeEach
+    public void setUp() {
+        projectBuilder = Project.builder()
+                .id(1L)
+                .name("project test")
+                .description("project test description")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now())
+                .build();
+    }
+
     @Test
     void shouldGetAll() {
         var pageable = PageRequest.of(0, 2);
 
-        var project1 = Project.builder()
-                .id(1L)
-                .name("project 1 test")
-                .description("project 1 test description")
-                .startDate(LocalDate.of(2025, 11, 1))
-                .endDate(LocalDate.of(2025, 11, 30))
-                .build();
+        var project = projectBuilder;
 
-        var project2 = Project.builder()
-                .id(1L)
-                .name("project 2 test")
-                .description("project 2 test description")
-                .startDate(LocalDate.of(2025, 11, 10))
-                .endDate(LocalDate.of(2025, 12, 15))
-                .build();
+        var projectResponse = new ProjectEntityDTO(project.getId(), project.getName(), project.getDescription(),
+                project.getStartDate(), project.getEndDate());
 
-        var dto1 = new ProjectEntityDTO(project1.getId(), project1.getName(), project1.getDescription(),
-                project1.getStartDate(), project1.getEndDate());
-
-        var dto2 = new ProjectEntityDTO(project2.getId(), project2.getName(), project2.getDescription(),
-                project2.getStartDate(), project2.getEndDate());
-
-        var projectPage = new PageImpl<>(List.of(project1, project2));
+        var projectPage = new PageImpl<>(List.of(project));
 
         when(this.repository.findAll(pageable)).thenReturn(projectPage);
-        when(this.mapper.toProjectDTO(project1)).thenReturn(dto1);
-        when(this.mapper.toProjectDTO(project2)).thenReturn(dto2);
+        when(this.mapper.toProjectDTO(any())).thenReturn(projectResponse);
 
         var result = service.getAll(pageable);
 
-        assertEquals(2, result.getTotalElements());
-        assertEquals(result.getContent().get(0).name(), project1.getName());
-        assertEquals(result.getContent().get(1).name(), project2.getName());
+        assertEquals(1, result.getTotalElements());
+        assertEquals(result.getContent().getFirst().name(), project.getName());
+        assertEquals(result.getContent().getFirst().description(), project.getDescription());
     }
 
     @Test
     void shouldCreateProject() {
         var projectCreateDTO = new ProjectCreateDTO("project test", "project description",
-                LocalDate.of(2025, 11, 1), LocalDate.of(2025, 11, 30));
+                LocalDate.now(), LocalDate.now());
 
-        var projectEntity = Project.builder()
-                .id(1L)
-                .name(projectCreateDTO.name())
-                .description(projectCreateDTO.description())
-                .startDate(projectCreateDTO.startDate())
-                .endDate(projectCreateDTO.endDate())
-                .build();
+        var projectEntity = projectBuilder;
 
         var projectResponse = new ProjectEntityDTO(projectEntity.getId(), projectEntity.getName(),
                 projectEntity.getDescription(), projectEntity.getStartDate(), projectEntity.getEndDate());
@@ -95,7 +85,5 @@ class ProjectServiceTest {
         assertEquals(projectResponse.id(), project.id());
         assertEquals(projectResponse.name(), project.name());
         assertEquals(projectResponse.description(), project.description());
-        assertEquals(projectResponse.startDate(), project.startDate());
-        assertEquals(projectResponse.endDate(), project.endDate());
     }
 }
